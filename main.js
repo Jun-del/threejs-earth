@@ -77,25 +77,32 @@ sunLight.shadow.camera.right = 10;
 scene.add(sunLight);
 
 /**
- * Async function that calls itself
+ * IIFE Async functions
  */
 (async function () {
 	let pmrem = new THREE.PMREMGenerator(renderer);
 	// https://polyhaven.com/a/industrial_sunset_02_puresky
-	let envMap = await new RGBELoader().setDataType(THREE.FloatType).loadAsync("/envmap.hdr");
+	let envMap = await new RGBELoader()
+		.setDataType(THREE.FloatType)
+		.loadAsync("/textures/envmap.hdr");
 	let envMapTexture = pmrem.fromEquirectangular(envMap).texture;
 
 	let textureLoader = new THREE.TextureLoader();
 	let textures = {
-		bump: await textureLoader.loadAsync("/earth_bump.jpg"),
-		specular: await textureLoader.loadAsync("/earth_specular.jpg"),
-		map: await textureLoader.loadAsync("/earth_map.jpg"),
-		planeTrailMask: await textureLoader.loadAsync("/mask.png"),
+		bump: await textureLoader.loadAsync("/textures/earth_bump.jpg"),
+		specular: await textureLoader.loadAsync("/textures/earth_specular.jpg"),
+		map: await textureLoader.loadAsync("/textures/earth_map.jpg"),
+		planeTrailMask: await textureLoader.loadAsync("/textures/mask.png"),
 	};
 
 	// "Cartoon Plane" (https://skfb.ly/UOLT) by antonmoek is licensed under Creative Commons Attribution
 	let plane = (await new GLTFLoader().loadAsync("/models/plane.glb")).scene.children[0];
-	let planesData = [makePlane(plane, textures.planeTrailMask, envMap, scene)];
+	let planesData = [
+		makePlane(plane, textures.planeTrailMask, envMap, scene),
+		makePlane(plane, textures.planeTrailMask, envMap, scene),
+		makePlane(plane, textures.planeTrailMask, envMap, scene),
+		makePlane(plane, textures.planeTrailMask, envMap, scene),
+	];
 
 	let sphere = new THREE.Mesh(
 		new THREE.SphereGeometry(10, 70, 70),
@@ -118,7 +125,11 @@ scene.add(sunLight);
 	sphere.receiveShadow = true;
 	scene.add(sphere);
 
+	let clock = new THREE.Clock();
+
 	renderer.setAnimationLoop(() => {
+		let delta = clock.getDelta(); // how much time has passed since last frame
+
 		planesData.forEach((planeData) => {
 			let plane = planeData.group;
 
@@ -126,6 +137,25 @@ scene.add(sunLight);
 			plane.rotation.set(0, 0, 0);
 			plane.updateMatrixWorld();
 
+			/**
+			 * https://github.com/Domenicobrz/Threejs-in-practice/blob/main/three-in-practice-3/src/index.js
+			 * idea: first rotate like that:
+			 *
+			 *          y-axis
+			 *  airplane  ^
+			 *      \     |     /
+			 *       \    |    /
+			 *        \   |   /
+			 *         \  |  /
+			 *     angle ^
+			 *
+			 * then at the end apply a rotation on a random axis
+			 */
+
+			planeData.rot += delta * 0.25;
+			plane.rotateOnAxis(planeData.randomAxis, planeData.randomAxisRot); // random axis
+			plane.rotateOnAxis(new THREE.Vector3(0, 1, 0), planeData.rot); // y-axis rotation
+			plane.rotateOnAxis(new THREE.Vector3(0, 0, 1), planeData.rad); // this decides the radius
 			plane.translateY(planeData.yOff);
 			plane.rotateOnAxis(new THREE.Vector3(1, 0, 0), +Math.PI * 0.5);
 		});
