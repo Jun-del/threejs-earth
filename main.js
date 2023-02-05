@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { makePlane } from "./src/utils";
 
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
@@ -88,7 +90,12 @@ scene.add(sunLight);
 		bump: await textureLoader.loadAsync("/earth_bump.jpg"),
 		specular: await textureLoader.loadAsync("/earth_specular.jpg"),
 		map: await textureLoader.loadAsync("/earth_map.jpg"),
+		planeTrailMask: await textureLoader.loadAsync("/mask.png"),
 	};
+
+	// "Cartoon Plane" (https://skfb.ly/UOLT) by antonmoek is licensed under Creative Commons Attribution
+	let plane = (await new GLTFLoader().loadAsync("/models/plane.glb")).scene.children[0];
+	let planesData = [makePlane(plane, textures.planeTrailMask, envMap, scene)];
 
 	let sphere = new THREE.Mesh(
 		new THREE.SphereGeometry(10, 70, 70),
@@ -112,6 +119,17 @@ scene.add(sunLight);
 	scene.add(sphere);
 
 	renderer.setAnimationLoop(() => {
+		planesData.forEach((planeData) => {
+			let plane = planeData.group;
+
+			plane.position.set(0, 0, 0);
+			plane.rotation.set(0, 0, 0);
+			plane.updateMatrixWorld();
+
+			plane.translateY(planeData.yOff);
+			plane.rotateOnAxis(new THREE.Vector3(1, 0, 0), +Math.PI * 0.5);
+		});
+
 		controls.update();
 		renderer.render(scene, camera);
 	});
