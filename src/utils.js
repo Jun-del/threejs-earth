@@ -16,9 +16,30 @@ function makePlane(planeMesh, trailTexture, envMap, scene) {
 		}
 	});
 
+	let trail = new THREE.Mesh(
+		new THREE.PlaneGeometry(1, 2),
+		new THREE.MeshPhysicalMaterial({
+			envMap,
+			envMapIntensity: 3,
+
+			color: new THREE.Color(getRandomColor()).convertSRGBToLinear(),
+			roughness: 0.4,
+			metalness: 0,
+			transmission: 1,
+
+			transparent: true,
+			opacity: 1,
+			alphaMap: trailTexture,
+		}),
+	);
+	trail.rotateX(Math.PI);
+	trail.translateY(1.1);
+
 	let group = new THREE.Group();
-	group.add(plane);
+	group.add(plane, trail);
 	scene.add(group);
+
+	console.log(group);
 
 	return {
 		group,
@@ -33,6 +54,16 @@ function makePlane(planeMesh, trailTexture, envMap, scene) {
 // returns a random number between -1 and 1
 function random1() {
 	return Math.random() * 2 - 1;
+}
+
+// returns a random hex color
+function getRandomColor() {
+	let letters = "0123456789ABCDEF";
+	let color = "#";
+	for (let i = 0; i < 6; i++) {
+		color += letters[Math.floor(Math.random() * 16)];
+	}
+	return color;
 }
 
 export { makePlane };

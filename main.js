@@ -99,9 +99,7 @@ scene.add(sunLight);
 	let plane = (await new GLTFLoader().loadAsync("/models/plane.glb")).scene.children[0];
 	let planesData = [
 		makePlane(plane, textures.planeTrailMask, envMap, scene),
-		makePlane(plane, textures.planeTrailMask, envMap, scene),
-		makePlane(plane, textures.planeTrailMask, envMap, scene),
-		makePlane(plane, textures.planeTrailMask, envMap, scene),
+		// makePlane(plane, textures.planeTrailMask, envMap, scene),
 	];
 
 	let sphere = new THREE.Mesh(
