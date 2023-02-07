@@ -39,8 +39,6 @@ function makePlane(planeMesh, trailTexture, envMap, scene) {
 	group.add(plane, trail);
 	scene.add(group);
 
-	console.log(group);
-
 	return {
 		group,
 		rot: Math.random() * Math.PI * 2,

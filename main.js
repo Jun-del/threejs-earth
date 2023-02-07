@@ -35,7 +35,7 @@ window.addEventListener("resize", () => {
 /**
  * Camera
  */
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100);
+const camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 0.1, 100);
 camera.position.set(0, 15, 50);
 scene.add(camera);
 
@@ -75,6 +75,25 @@ sunLight.shadow.camera.bottom = -10;
 sunLight.shadow.camera.top = 10;
 sunLight.shadow.camera.right = 10;
 scene.add(sunLight);
+
+/**
+ * Scene 2
+ */
+const ringsScene = new THREE.Scene();
+
+const ringsCamera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 0.1, 100);
+ringsCamera.position.set(0, 0, 50);
+
+// Mouse position
+let mousePos = new THREE.Vector2(0, 0);
+
+window.addEventListener("mousemove", (e) => {
+	let x = e.clientX - sizes.width * 0.5;
+	let y = e.clientY - sizes.height * 0.5;
+
+	mousePos.x = x * 0.0003;
+	mousePos.y = y * 0.0003;
+});
 
 /**
  * IIFE Async functions
@@ -123,6 +142,45 @@ scene.add(sunLight);
 	sphere.receiveShadow = true;
 	scene.add(sphere);
 
+	/**
+	 * Scene 2
+	 */
+	const ring1 = new THREE.Mesh(
+		new THREE.RingGeometry(15, 13.5, 80, 1, 0),
+		new THREE.MeshPhysicalMaterial({
+			color: new THREE.Color("#FFCB8E").convertSRGBToLinear().multiplyScalar(200),
+			roughness: 0.25,
+			envMap,
+			envMapIntensity: 1.8,
+			side: THREE.DoubleSide,
+			transparent: true,
+			opacity: 0.35,
+		}),
+	);
+	ringsScene.add(ring1);
+
+	const ring2 = new THREE.Mesh(
+		new THREE.RingGeometry(16.5, 15.75, 80, 1, 0),
+		new THREE.MeshBasicMaterial({
+			color: new THREE.Color("#FFCB8E").convertSRGBToLinear(),
+			transparent: true,
+			opacity: 0.5,
+			side: THREE.DoubleSide,
+		}),
+	);
+	ringsScene.add(ring2);
+
+	const ring3 = new THREE.Mesh(
+		new THREE.RingGeometry(18, 17.75, 80),
+		new THREE.MeshBasicMaterial({
+			color: new THREE.Color("#FFCB8E").convertSRGBToLinear().multiplyScalar(50),
+			transparent: true,
+			opacity: 0.5,
+			side: THREE.DoubleSide,
+		}),
+	);
+	ringsScene.add(ring3);
+
 	let clock = new THREE.Clock();
 
 	renderer.setAnimationLoop(() => {
@@ -160,5 +218,19 @@ scene.add(sunLight);
 
 		controls.update();
 		renderer.render(scene, camera);
+
+		// Rotate rings
+		ring1.rotation.x = ring1.rotation.x * 0.95 + mousePos.y * 0.05 * 1.2;
+		ring1.rotation.y = ring1.rotation.y * 0.95 + mousePos.x * 0.05 * 1.2;
+
+		ring2.rotation.x = ring2.rotation.x * 0.95 + mousePos.y * 0.05 * 0.375;
+		ring2.rotation.y = ring2.rotation.y * 0.95 + mousePos.x * 0.05 * 0.375;
+
+		ring3.rotation.x = ring3.rotation.x * 0.95 - mousePos.y * 0.05 * 0.275;
+		ring3.rotation.y = ring3.rotation.y * 0.95 - mousePos.x * 0.05 * 0.275;
+
+		renderer.autoClear = false;
+		renderer.render(ringsScene, ringsCamera);
+		renderer.autoClear = true;
 	});
 })();
