@@ -11,6 +11,8 @@ function makePlane(planeMesh, trailTexture, envMap, scene) {
 	plane.traverse((object) => {
 		if (object instanceof THREE.Mesh) {
 			object.material.envMap = envMap;
+			object.sunEnvIntensity = 1;
+			object.moonEnvIntensity = 0.3;
 			object.castShadow = true;
 			object.receiveShadow = true;
 		}
@@ -41,8 +43,8 @@ function makePlane(planeMesh, trailTexture, envMap, scene) {
 
 	return {
 		group,
-		rot: Math.random() * Math.PI * 2,
-		rad: Math.random() * Math.PI * 0.45 + 0.2,
+		rot: Math.PI * 2,
+		rad: Math.random() * Math.PI * 0.45 + 0.05,
 		yOff: 10.5 + Math.random() * 10,
 		randomAxis: new THREE.Vector3(random1(), random1(), random1()).normalize(),
 		randomAxisRot: Math.random() * Math.PI * 2,
