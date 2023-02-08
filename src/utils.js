@@ -45,7 +45,7 @@ function makePlane(planeMesh, trailTexture, envMap, scene) {
 		group,
 		rot: Math.PI * 2,
 		rad: Math.random() * Math.PI * 0.45 + 0.05,
-		yOff: 10.5 + Math.random() * 10,
+		yOff: 10.5 + Math.random() * 1,
 		randomAxis: new THREE.Vector3(random1(), random1(), random1()).normalize(),
 		randomAxisRot: Math.random() * Math.PI * 2,
 	};
